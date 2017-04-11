@@ -69,7 +69,7 @@ public class MessageProcessorNotification extends ServerNotification implements 
       lastRootMessageId.set(sourceEvent.getCorrelationId());
       return sourceEvent;
     } else if (rootId != null && flowConstruct != null) {
-      final Message msg = Message.NULL_MESSAGE;
+      final Message msg = Message.of(null);
       return Event.builder(create(flowConstruct, "MessageProcessorNotification", lastRootMessageId.get())).message(msg)
           .flow(flowConstruct).build();
     } else {

@@ -6,7 +6,6 @@
  */
 package org.mule.test.service.scheduler;
 
-import static org.mule.runtime.api.message.Message.NULL_MESSAGE;
 import static org.mule.runtime.core.DefaultEventContext.create;
 import static org.mule.runtime.core.api.scheduler.SchedulerConfig.config;
 import static org.mule.test.allure.AllureConstants.SchedulerServiceFeature.SCHEDULER_SERVICE;
@@ -24,6 +23,7 @@ import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.api.lifecycle.Disposable;
 import org.mule.runtime.api.lifecycle.Initialisable;
 import org.mule.runtime.api.lifecycle.InitialisationException;
+import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.scheduler.Scheduler;
 import org.mule.runtime.core.api.Event;
 import org.mule.runtime.core.api.construct.Flow;
@@ -137,7 +137,9 @@ public class SchedulerServiceTestCase extends AbstractIntegrationTestCase {
     Scheduler scheduler = muleContext.getSchedulerService().cpuLightScheduler();
     try {
       scheduler.submit(() -> ((SkeletonSource) messageSource).getListener()
-          .process(Event.builder(create(delayScheduleFlow, SchedulerServiceTestCase.class.getSimpleName())).message(NULL_MESSAGE)
+          .process(Event.builder(create(delayScheduleFlow, SchedulerServiceTestCase.class.getSimpleName())).message(
+                                                                                                                    Message
+                                                                                                                        .of(null))
               .build()))
           .get();
     } catch (ExecutionException executionException) {

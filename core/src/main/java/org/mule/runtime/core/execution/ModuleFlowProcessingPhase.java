@@ -6,7 +6,6 @@
  */
 package org.mule.runtime.core.execution;
 
-import static org.mule.runtime.api.message.Message.NULL_MESSAGE;
 import static org.mule.runtime.api.message.NullAttributes.NULL_ATTRIBUTES;
 import static org.mule.runtime.api.metadata.MediaType.ANY;
 import static org.mule.runtime.core.DefaultEventContext.create;
@@ -140,7 +139,7 @@ public class ModuleFlowProcessingPhase
             // TODO MULE-11141 - This is the case of a filtered flow. This will eventually go away.
             if (flowExecutionResponse == null) {
               flowExecutionResponse =
-                  Event.builder(templateEvent).message(NULL_MESSAGE).build();
+                  Event.builder(templateEvent).message(Message.of(null)).build();
             }
 
             Map<String, Object> responseParameters = sourcePolicyResult.getRight().getResponseParameters();
@@ -236,7 +235,7 @@ public class ModuleFlowProcessingPhase
       // TODO MULE-11141 - This is the case of a filtered flow. This will eventually go away.
       if (response == null) {
         response =
-            Event.builder(request).message(NULL_MESSAGE).build();
+            Event.builder(request).message(Message.of(null)).build();
       }
 
       Map<String, Object> responseParameters =
