@@ -36,7 +36,7 @@ import org.mule.runtime.core.api.context.MuleContextAware;
 import org.mule.runtime.core.api.context.MuleContextBuilder;
 import org.mule.runtime.core.api.context.MuleContextFactory;
 import org.mule.runtime.core.api.context.notification.MuleContextNotificationListener;
-import org.mule.runtime.core.api.message.InternalMessage;
+import org.mule.runtime.core.internal.message.InternalMessage;
 import org.mule.runtime.core.api.processor.Processor;
 import org.mule.runtime.core.api.registry.RegistrationException;
 import org.mule.runtime.core.api.scheduler.SchedulerService;
@@ -532,7 +532,7 @@ public abstract class AbstractMuleContextTestCase extends AbstractMuleTestCase {
    * @return representation of the message payload of the required class
    * @throws Exception if there is an unexpected error obtaining the payload representation
    */
-  protected <T> T getPayload(InternalMessage message, Class<T> clazz) throws Exception {
+  protected <T> T getPayload(Message message, Class<T> clazz) throws Exception {
     return (T) getPayload(message, DataType.fromType(clazz));
   }
 

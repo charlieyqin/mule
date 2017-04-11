@@ -18,8 +18,7 @@ import org.mule.runtime.core.api.EventContext;
 import org.mule.runtime.core.api.MuleContext;
 import org.mule.runtime.core.api.connector.ReplyToHandler;
 import org.mule.runtime.core.api.construct.FlowConstruct;
-import org.mule.runtime.core.api.message.InternalMessage;
-import org.mule.runtime.core.api.message.InternalMessage.Builder;
+import org.mule.runtime.core.internal.message.InternalMessage;
 import org.mule.runtime.core.message.DefaultMultiPartPayload;
 import org.mule.runtime.core.message.GroupCorrelation;
 import org.mule.runtime.core.util.IOUtils;
@@ -273,11 +272,12 @@ public class TestEventBuilder {
    * @param flow        the recipient for the event to be built.
    * @return an event with the specified configuration.
    */
+  // TODO(pablo.kraan): API - remove mule context from method
   public Event build(MuleContext muleContext, FlowConstruct flow) {
-    final Builder messageBuilder;
+    final Message.Builder messageBuilder;
 
-    messageBuilder = InternalMessage.builder().payload(payload).mediaType(mediaType).inboundProperties(inboundProperties)
-        .outboundProperties(outboundProperties).inboundAttachments(inboundAttachments);
+    // TODO(pablo.kraan): API - review which usages require access to internal message and move to compatibility if needed
+    messageBuilder = Message.builder().payload(payload).mediaType(mediaType);
 
     if (attributes != null) {
       messageBuilder.attributes(attributes);
@@ -321,6 +321,7 @@ public class TestEventBuilder {
 
     @Override
     public Event addOutboundTo(Event event, String key) {
+      // TODO(pablo.kraan): API - review usages of internal message
       return Event.builder(event)
           .message(InternalMessage.builder(event.getMessage()).addOutboundAttachment(key, dataHandler).build()).build();
     }
@@ -340,6 +341,7 @@ public class TestEventBuilder {
     @Override
     public Event addOutboundTo(Event event, String key) {
       try {
+        // TODO(pablo.kraan): API - review usages of internal message
         return Event.builder(event).message(InternalMessage.builder(event.getMessage())
             .addOutboundAttachment(key, IOUtils.toDataHandler(key, object, contentType))
             .build()).build();

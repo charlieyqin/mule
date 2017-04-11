@@ -11,18 +11,17 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
-
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.core.api.Event;
 import org.mule.runtime.core.api.client.MuleClient;
-import org.mule.runtime.core.api.message.InternalMessage;
 import org.mule.runtime.core.api.processor.Processor;
+import org.mule.runtime.core.internal.message.InternalMessage;
 import org.mule.test.AbstractIntegrationTestCase;
 
-import org.junit.Test;
-
 import com.eaio.uuid.UUID;
+
+import org.junit.Test;
 
 public class FlowAsyncBeforeAfterOutboundTestCase extends AbstractIntegrationTestCase {
 

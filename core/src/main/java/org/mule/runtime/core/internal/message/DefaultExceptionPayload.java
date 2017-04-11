@@ -4,10 +4,9 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.runtime.core.message;
+package org.mule.runtime.core.internal.message;
 
 import org.mule.runtime.api.exception.MuleException;
-import org.mule.runtime.core.api.message.ExceptionPayload;
 import org.mule.runtime.core.config.ExceptionHelper;
 
 import java.util.Map;
