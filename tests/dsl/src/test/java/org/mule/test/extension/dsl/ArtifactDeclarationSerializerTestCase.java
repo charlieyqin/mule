@@ -78,7 +78,7 @@ public class ArtifactDeclarationSerializerTestCase extends AbstractElementModelT
     InputStream configIs = Thread.currentThread().getContextClassLoader().getResourceAsStream(configFile);
     ArtifactDeclarationXmlSerializer serializer = ArtifactDeclarationXmlSerializer.getDefault(dslContext);
 
-    ArtifactDeclaration artifact = serializer.deserialize(configFile, configIs);
+    ArtifactDeclaration artifact = serializer.deserialize(configIs);
 
     String serializationResult = serializer.serialize(artifact);
     compareXML(expectedAppXml, serializationResult);
