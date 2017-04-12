@@ -61,6 +61,7 @@ import org.mule.runtime.extension.api.annotation.Ignore;
 import org.mule.runtime.extension.api.annotation.metadata.MetadataKeyId;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
+import org.mule.runtime.extension.api.declaration.type.annotation.LiteralTypeAnnotation;
 import org.mule.runtime.extension.api.declaration.type.annotation.ParameterResolverTypeAnnotation;
 import org.mule.runtime.extension.api.declaration.type.annotation.TypedValueTypeAnnotation;
 import org.mule.runtime.extension.api.exception.IllegalModelDefinitionException;
@@ -69,8 +70,9 @@ import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.source.Source;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
 import org.mule.runtime.module.extension.internal.loader.java.MuleExtensionAnnotationParser;
-import org.mule.runtime.module.extension.internal.loader.java.ParameterResolverTypeModelProperty;
-import org.mule.runtime.module.extension.internal.loader.java.TypedValueTypeModelProperty;
+import org.mule.runtime.module.extension.internal.loader.java.property.LiteralModelProperty;
+import org.mule.runtime.module.extension.internal.loader.java.property.ParameterResolverTypeModelProperty;
+import org.mule.runtime.module.extension.internal.loader.java.property.TypedValueTypeModelProperty;
 import org.mule.runtime.module.extension.internal.loader.java.property.DeclaringMemberModelProperty;
 import org.mule.runtime.module.extension.internal.loader.java.property.ImplementingParameterModelProperty;
 
@@ -798,19 +800,28 @@ public final class IntrospectionUtils {
     }
   }
 
-  public static boolean isTypedValue(Set<ModelProperty> modelProperties) {
-    return modelProperties.stream().anyMatch(modelProperty -> modelProperty instanceof TypedValueTypeModelProperty);
-  }
-
   public static boolean isParameterResolver(Set<ModelProperty> modelProperties) {
     return modelProperties.stream().anyMatch(modelProperty -> modelProperty instanceof ParameterResolverTypeModelProperty);
+  }
+
+  public static boolean isParameterResolver(MetadataType metadataType) {
+    return metadataType.getAnnotation(ParameterResolverTypeAnnotation.class).isPresent();
+  }
+
+  public static boolean isLiteral(Set<ModelProperty> modelProperties) {
+    return modelProperties.stream().anyMatch(modelProperty -> modelProperty instanceof LiteralModelProperty);
+  }
+
+  public static boolean isLiteral(MetadataType metadataType) {
+    return metadataType.getAnnotation(LiteralTypeAnnotation.class).isPresent();
+  }
+
+  public static boolean isTypedValue(Set<ModelProperty> modelProperties) {
+    return modelProperties.stream().anyMatch(modelProperty -> modelProperty instanceof TypedValueTypeModelProperty);
   }
 
   public static boolean isTypedValue(MetadataType metadataType) {
     return metadataType.getAnnotation(TypedValueTypeAnnotation.class).isPresent();
   }
 
-  public static boolean isParameterResolver(MetadataType metadataType) {
-    return metadataType.getAnnotation(ParameterResolverTypeAnnotation.class).isPresent();
-  }
 }

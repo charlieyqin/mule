@@ -88,6 +88,7 @@ import org.mule.runtime.module.extension.internal.runtime.resolver.NativeQueryPa
 import org.mule.runtime.module.extension.internal.runtime.resolver.NestedProcessorListValueResolver;
 import org.mule.runtime.module.extension.internal.runtime.resolver.NestedProcessorValueResolver;
 import org.mule.runtime.module.extension.internal.runtime.resolver.ParameterResolverValueResolverWrapper;
+import org.mule.runtime.module.extension.internal.runtime.resolver.StaticLiteralValueResolver;
 import org.mule.runtime.module.extension.internal.runtime.resolver.StaticValueResolver;
 import org.mule.runtime.module.extension.internal.runtime.resolver.TypeSafeExpressionValueResolver;
 import org.mule.runtime.module.extension.internal.runtime.resolver.TypeSafeValueResolverWrapper;
@@ -530,7 +531,7 @@ public abstract class ExtensionDefinitionParser {
       return (ValueResolver<?>) value;
     }
 
-    ValueResolver resolver = null;
+    ValueResolver resolver;
 
     final Class<Object> expectedClass = getType(expectedType);
 
@@ -566,6 +567,8 @@ public abstract class ExtensionDefinitionParser {
       resolver = new ExpressionBasedParameterResolverValueResolver(value, expectedType, muleContext);
     } else if (isTypedValue(modelProperties, expectedType)) {
       resolver = new ExpressionTypedValueValueResolver(value, expectedClass, muleContext);
+    } else if (isLiteral(modelProperties, expectedType)) {
+      resolver = new StaticLiteralValueResolver(value, expectedClass);
     } else {
       resolver = new TypeSafeExpressionValueResolver<>(value, expectedClass, muleContext);
     }
@@ -839,6 +842,10 @@ public abstract class ExtensionDefinitionParser {
 
   private boolean isTypedValue(Set<ModelProperty> modelProperties, MetadataType expectedType) {
     return IntrospectionUtils.isTypedValue(modelProperties) || IntrospectionUtils.isTypedValue(expectedType);
+  }
+
+  private boolean isLiteral(Set<ModelProperty> modelProperties, MetadataType expectedType) {
+    return IntrospectionUtils.isLiteral(modelProperties) || IntrospectionUtils.isLiteral(expectedType);
   }
 
   private ValueResolver doParseDate(Object value, Class<?> type) {

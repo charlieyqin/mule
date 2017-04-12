@@ -17,7 +17,6 @@ import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.stopIfNeeded;
 import static org.mule.runtime.core.util.SystemUtils.getDefaultEncoding;
 import static org.mule.runtime.extension.api.annotation.param.display.Placement.SECURITY_TAB;
 import static org.slf4j.LoggerFactory.getLogger;
-
 import org.mule.extension.http.api.request.authentication.HttpAuthentication;
 import org.mule.extension.oauth2.internal.tokenmanager.TokenManagerConfig;
 import org.mule.runtime.api.exception.MuleException;
@@ -33,7 +32,7 @@ import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
-import org.mule.runtime.extension.api.runtime.operation.ParameterResolver;
+import org.mule.runtime.extension.api.runtime.parameter.Literal;
 import org.mule.runtime.oauth.api.OAuthDancer;
 import org.mule.runtime.oauth.api.OAuthService;
 import org.mule.runtime.oauth.api.builder.OAuthDancerBuilder;
@@ -100,18 +99,18 @@ public abstract class AbstractGrantType implements HttpAuthentication, MuleConte
    */
   @Parameter
   @Optional(defaultValue = ACCESS_TOKEN_EXPRESSION)
-  protected ParameterResolver<String> responseAccessToken;
+  protected Literal<String> responseAccessToken;
 
   @Parameter
   @Optional(defaultValue = REFRESH_TOKEN_EXPRESSION)
-  protected ParameterResolver<String> responseRefreshToken;
+  protected Literal<String> responseRefreshToken;
 
   /**
    * Expression to extract the expiresIn parameter from the response of the call to tokenUrl.
    */
   @Parameter
   @Optional(defaultValue = EXPIRATION_TIME_EXPRESSION)
-  protected ParameterResolver<String> responseExpiresIn;
+  protected Literal<String> responseExpiresIn;
 
   @Parameter
   @Alias("custom-parameter-extractors")
@@ -127,7 +126,7 @@ public abstract class AbstractGrantType implements HttpAuthentication, MuleConte
    */
   @Parameter
   @Optional(defaultValue = "#[attributes.statusCode == 401 or attributes.statusCode == 403]")
-  private ParameterResolver<Boolean> refreshTokenWhen;
+  private Literal<Boolean> refreshTokenWhen;
 
   /**
    * References a TLS config that will be used to receive incoming HTTP request and do HTTP request during the OAuth dance.
@@ -222,21 +221,21 @@ public abstract class AbstractGrantType implements HttpAuthentication, MuleConte
     return tokenUrl;
   }
 
-  public ParameterResolver<Boolean> getRefreshTokenWhen() {
+  public Literal<Boolean> getRefreshTokenWhen() {
     return refreshTokenWhen;
   }
 
-  public ParameterResolver<String> getResponseAccessToken() {
+  public Literal<String> getResponseAccessToken() {
     return responseAccessToken;
   }
 
 
-  public ParameterResolver<String> getResponseRefreshToken() {
+  public Literal<String> getResponseRefreshToken() {
     return responseRefreshToken;
   }
 
 
-  public ParameterResolver<String> getResponseExpiresIn() {
+  public Literal<String> getResponseExpiresIn() {
     return responseExpiresIn;
   }
 

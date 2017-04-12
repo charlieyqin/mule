@@ -62,7 +62,6 @@ public class ClientCredentialsFailureTestCase extends AbstractOAuthAuthorization
     return "client-credentials/client-credentials-minimal-config.xml";
   }
 
-  @Override
   @Before
   public void before() throws Exception {
     // Force the initialization of the OAuth context

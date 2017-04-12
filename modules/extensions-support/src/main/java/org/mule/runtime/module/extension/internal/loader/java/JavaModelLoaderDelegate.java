@@ -26,7 +26,6 @@ import static org.mule.runtime.extension.api.util.NameUtils.getComponentModelTyp
 import static org.mule.runtime.module.extension.internal.util.IntrospectionUtils.getExpressionSupport;
 import static org.mule.runtime.module.extension.internal.util.IntrospectionUtils.getFieldsWithGetters;
 import static org.mule.runtime.module.extension.internal.util.IntrospectionUtils.isInstantiable;
-import com.google.common.collect.ImmutableList;
 import org.mule.metadata.api.ClassTypeLoader;
 import org.mule.metadata.api.model.ArrayType;
 import org.mule.metadata.api.model.MetadataType;
@@ -67,7 +66,8 @@ import org.mule.runtime.extension.api.declaration.type.ExtensionsTypeLoaderFacto
 import org.mule.runtime.extension.api.exception.IllegalModelDefinitionException;
 import org.mule.runtime.extension.api.exception.IllegalParameterModelDefinitionException;
 import org.mule.runtime.extension.api.loader.ExtensionLoadingContext;
-import org.mule.runtime.extension.api.runtime.operation.ParameterResolver;
+import org.mule.runtime.extension.api.runtime.parameter.Literal;
+import org.mule.runtime.extension.api.runtime.parameter.ParameterResolver;
 import org.mule.runtime.module.extension.internal.loader.ParameterGroupDescriptor;
 import org.mule.runtime.module.extension.internal.loader.java.contributor.InfrastructureFieldContributor;
 import org.mule.runtime.module.extension.internal.loader.java.contributor.ParameterDeclarerContributor;
@@ -77,9 +77,12 @@ import org.mule.runtime.module.extension.internal.loader.java.property.DefaultEn
 import org.mule.runtime.module.extension.internal.loader.java.property.ExceptionHandlerModelProperty;
 import org.mule.runtime.module.extension.internal.loader.java.property.ImplementingParameterModelProperty;
 import org.mule.runtime.module.extension.internal.loader.java.property.ImplementingTypeModelProperty;
+import org.mule.runtime.module.extension.internal.loader.java.property.LiteralModelProperty;
 import org.mule.runtime.module.extension.internal.loader.java.property.NullSafeModelProperty;
 import org.mule.runtime.module.extension.internal.loader.java.property.ParameterGroupModelProperty;
+import org.mule.runtime.module.extension.internal.loader.java.property.ParameterResolverTypeModelProperty;
 import org.mule.runtime.module.extension.internal.loader.java.property.TypeRestrictionModelProperty;
+import org.mule.runtime.module.extension.internal.loader.java.property.TypedValueTypeModelProperty;
 import org.mule.runtime.module.extension.internal.loader.java.type.ExtensionElement;
 import org.mule.runtime.module.extension.internal.loader.java.type.ExtensionParameter;
 import org.mule.runtime.module.extension.internal.loader.java.type.ExtensionTypeFactory;
@@ -89,6 +92,8 @@ import org.mule.runtime.module.extension.internal.loader.java.type.WithAnnotatio
 import org.mule.runtime.module.extension.internal.loader.java.type.WithParameters;
 import org.mule.runtime.module.extension.internal.loader.java.type.runtime.FieldWrapper;
 import org.mule.runtime.module.extension.internal.loader.utils.ParameterDeclarationContext;
+
+import com.google.common.collect.ImmutableList;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -132,13 +137,17 @@ public final class JavaModelLoaderDelegate {
                          new ParameterTypeUnwrapperContributor(typeLoader, TypedValue.class,
                                                                new TypedValueTypeModelProperty()),
                          new ParameterTypeUnwrapperContributor(typeLoader, ParameterResolver.class,
-                                                               new ParameterResolverTypeModelProperty()));
+                                                               new ParameterResolverTypeModelProperty()),
+                         new ParameterTypeUnwrapperContributor(typeLoader, Literal.class,
+                                                               new LiteralModelProperty()));
 
     methodParameterContributors = ImmutableList.of(
                                                    new ParameterTypeUnwrapperContributor(typeLoader, TypedValue.class,
                                                                                          new TypedValueTypeModelProperty()),
                                                    new ParameterTypeUnwrapperContributor(typeLoader, ParameterResolver.class,
-                                                                                         new ParameterResolverTypeModelProperty()));
+                                                                                         new ParameterResolverTypeModelProperty()),
+                                                   new ParameterTypeUnwrapperContributor(typeLoader, Literal.class,
+                                                                                         new LiteralModelProperty()));
   }
 
   /**
