@@ -85,11 +85,20 @@ public final class RequestConnectionParams {
   @Placement(tab = ADVANCED_TAB, order = 3)
   private Integer connectionIdleTimeout;
 
+  /**
+   * The space in bytes for the buffer where the HTTP response will be stored.
+   */
+  @Parameter
+  @Optional(defaultValue = "10240")
+  @Expression(NOT_SUPPORTED)
+  @Placement(tab = ADVANCED_TAB, order = 4)
+  private Integer responseBufferSize;
+
   @Parameter
   @Optional
   @NullSafe
   @Expression(NOT_SUPPORTED)
-  @Placement(tab = ADVANCED_TAB, order = 4)
+  @Placement(tab = ADVANCED_TAB, order = 5)
   private TcpClientSocketProperties clientSocketProperties;
 
   public HttpConstants.Protocols getProtocol() {
@@ -114,6 +123,10 @@ public final class RequestConnectionParams {
 
   public Integer getConnectionIdleTimeout() {
     return connectionIdleTimeout;
+  }
+
+  public Integer getResponseBufferSize() {
+    return responseBufferSize;
   }
 
   public TcpClientSocketProperties getClientSocketProperties() {
@@ -142,6 +155,10 @@ public final class RequestConnectionParams {
 
   public void setConnectionIdleTimeout(Integer connectionIdleTimeout) {
     this.connectionIdleTimeout = connectionIdleTimeout;
+  }
+
+  public void setResponseBufferSize(Integer responseBufferSize) {
+    this.responseBufferSize = responseBufferSize;
   }
 
   public void setClientSocketProperties(TcpClientSocketProperties clientSocketProperties) {

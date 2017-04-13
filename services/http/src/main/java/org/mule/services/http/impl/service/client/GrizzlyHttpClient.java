@@ -39,6 +39,7 @@ import org.mule.service.http.api.domain.message.response.HttpResponse;
 import org.mule.service.http.api.domain.message.response.HttpResponseBuilder;
 import org.mule.service.http.api.tcp.TcpClientSocketProperties;
 
+import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.AsyncHandler;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfig;
@@ -76,6 +77,7 @@ public class GrizzlyHttpClient implements HttpClient {
   private static final int MAX_CONNECTION_LIFETIME = 30 * 60 * 1000;
 
   private static final Logger logger = LoggerFactory.getLogger(GrizzlyHttpClient.class);
+  private static final boolean DISABLE_STREAMING = Boolean.getBoolean("mule.http.streamingOff");
 
   private final TlsContextFactory tlsContextFactory;
 
@@ -84,6 +86,7 @@ public class GrizzlyHttpClient implements HttpClient {
   private int maxConnections;
   private boolean usePersistentConnections;
   private int connectionIdleTimeout;
+  private int responseBufferSize;
 
   private String threadNamePrefix;
   private Scheduler selectorScheduler;
@@ -102,6 +105,7 @@ public class GrizzlyHttpClient implements HttpClient {
     this.maxConnections = config.getMaxConnections();
     this.usePersistentConnections = config.isUsePersistentConnections();
     this.connectionIdleTimeout = config.getConnectionIdleTimeout();
+    this.responseBufferSize = config.getResponseBufferSize();
     this.threadNamePrefix = config.getThreadNamePrefix();
     this.ownerName = config.getOwnerName();
 
@@ -237,7 +241,7 @@ public class GrizzlyHttpClient implements HttpClient {
 
     Request grizzlyRequest = createGrizzlyRequest(request, responseTimeout, followRedirects, authentication);
     PipedOutputStream outPipe = new PipedOutputStream();
-    PipedInputStream inPipe = new PipedInputStream(outPipe);
+    PipedInputStream inPipe = new PipedInputStream(outPipe, responseBufferSize);
     BodyDeferringAsyncHandler asyncHandler = new BodyDeferringAsyncHandler(outPipe);
     asyncHttpClient.executeRequest(grizzlyRequest, asyncHandler);
     try {
@@ -260,9 +264,14 @@ public class GrizzlyHttpClient implements HttpClient {
   public void send(HttpRequest request, int responseTimeout, boolean followRedirects, HttpRequestAuthentication authentication,
                    ResponseHandler handler) {
     try {
-      PipedOutputStream outPipe = new PipedOutputStream();
-      asyncHttpClient.executeRequest(createGrizzlyRequest(request, responseTimeout, followRedirects, authentication),
-                                     new ResponseBodyDeferringAsyncHandler(handler, outPipe));
+      if (DISABLE_STREAMING) {
+        asyncHttpClient.executeRequest(createGrizzlyRequest(request, responseTimeout, followRedirects, authentication),
+                                       new SimpleAsyncHandler(handler));
+      } else {
+        PipedOutputStream outPipe = new PipedOutputStream();
+        asyncHttpClient.executeRequest(createGrizzlyRequest(request, responseTimeout, followRedirects, authentication),
+                                       new ResponseBodyDeferringAsyncHandler(handler, outPipe));
+      }
     } catch (Exception e) {
       handler.onFailure(e);
     }
@@ -397,6 +406,34 @@ public class GrizzlyHttpClient implements HttpClient {
     selectorScheduler.stop(5, SECONDS);
   }
 
+  private class SimpleAsyncHandler extends AsyncCompletionHandler<Response> {
+
+    private ResponseHandler responseHandler;
+
+    public SimpleAsyncHandler(ResponseHandler responseHandler) {
+      this.responseHandler = responseHandler;
+    }
+
+    @Override
+    public Response onCompleted(Response response) throws Exception {
+      responseHandler.onCompletion(createMuleResponse(response, response.getResponseBodyAsStream()));
+      return null;
+    }
+
+    @Override
+    public void onThrowable(Throwable t) {
+      Exception exception;
+      if (t instanceof TimeoutException) {
+        exception = (TimeoutException) t;
+      } else if (t instanceof IOException) {
+        exception = (IOException) t;
+      } else {
+        exception = new IOException(t);
+      }
+      responseHandler.onFailure(exception);
+    }
+  }
+
   private class ResponseBodyDeferringAsyncHandler implements AsyncHandler<Response> {
 
     private volatile Response response;
@@ -410,7 +447,7 @@ public class GrizzlyHttpClient implements HttpClient {
         throws IOException {
       this.output = output;
       this.responseHandler = responseHandler;
-      this.input = new PipedInputStream(output);
+      this.input = new PipedInputStream(output, responseBufferSize);
     }
 
     @Override
